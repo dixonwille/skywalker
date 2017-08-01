@@ -1,0 +1,6 @@
+*
+!*.*
+!*/
+vendor/**
+!vendor/vendor.json
+*.exe
