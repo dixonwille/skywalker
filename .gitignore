@@ -3,4 +3,5 @@
 !*/
 vendor/**
 !vendor/vendor.json
+!LICENSE
 *.exe
