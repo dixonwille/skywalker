@@ -153,7 +153,7 @@ func (sw *Skywalker) walker(workerChan chan string) func(path string, info os.Fi
 				return nil
 			}
 		} else {
-			if sw.skipFile(info.Name()) {
+			if sw.skipFile(path) {
 				return nil
 			}
 		}
@@ -176,23 +176,33 @@ func (sw *Skywalker) skipDir(path string) (bool, error) {
 		if path == sw.Root {
 			return false, nil
 		}
-		dirs := strings.Split(cleanDir(strings.Replace(path, sw.Root, "", 1)), string(filepath.Separator))
-		for i := 1; i < len(dirs)+1; i++ {
-			try := filepath.Join(sw.Root, filepath.Join(dirs[:i]...))
-			root, found := sw.dirMap[try]
-			if found && root {
-				return false, nil // if it is the root no need to continue. Just use it
-			}
-			if !found {
-				return true, filepath.SkipDir // if it was not found at all ignore. the order of the search is important
-			}
-		}
-		return true, nil // if it was found but not the root and was the last iteration
+		return sw.whiteListDir(path)
 	}
 	return false, nil
 }
 
-func (sw *Skywalker) skipFile(name string) bool {
+func (sw *Skywalker) whiteListDir(path string) (bool, error) {
+	dirs := strings.Split(cleanDir(strings.Replace(path, sw.Root, "", 1)), string(filepath.Separator))
+	for i := 1; i < len(dirs)+1; i++ {
+		try := filepath.Join(sw.Root, filepath.Join(dirs[:i]...))
+		root, found := sw.dirMap[try]
+		if found && root {
+			return false, nil // if it is the root no need to continue. Just use it
+		}
+		if !found {
+			return true, filepath.SkipDir // if it was not found at all ignore. the order of the search is important
+		}
+	}
+	return true, nil // if it was found but not the root and was the last iteration
+}
+
+func (sw *Skywalker) skipFile(path string) bool {
+	dir, name := filepath.Split(path)
+	if sw.DirListType == LTWhitelist {
+		if skipDir, _ := sw.whiteListDir(dir); skipDir {
+			return true
+		}
+	}
 	_, inList := sw.extMap[filepath.Ext(name)]
 	switch sw.ExtListType {
 	case LTBlacklist:
