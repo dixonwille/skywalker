@@ -19,8 +19,8 @@ type ExampleWorker struct {
 }
 
 func (ew *ExampleWorker) Work(path string) {
-	//This is where the necissary work should be done.
-	//This will get conncurrently so make sure it is thread safe if you need info across threads.
+	//This is where the necessary work should be done.
+	//This will get concurrently so make sure it is thread safe if you need info across threads.
 	ew.Lock()
 	defer ew.Unlock()
 	ew.found = append(ew.found, path)
@@ -49,7 +49,6 @@ func ExampleSkywalker() {
 	for _, f := range ew.found {
 		fmt.Println(strings.Replace(f, sw.Root, "", 1))
 	}
-
 	// Output:
 	// /subfolder/few.pdf
 	// /the/few.pdf
