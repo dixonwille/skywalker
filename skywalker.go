@@ -8,6 +8,7 @@ package skywalker
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/gobwas/glob"
@@ -29,7 +30,7 @@ const (
 )
 
 //Skywalker can concurrently go through files in Root and call Worker on everything.
-//It is recommended to use DirList and ExtList as much as possable as it is more perfomant than List.
+//It is recommended to use DirList and ExtList as much as possible as it is more perfomant than List.
 type Skywalker struct {
 	//Root is where the file walker starts. It is converted to an absolute path before start.
 	Root string
@@ -41,7 +42,7 @@ type Skywalker struct {
 	list     []glob.Glob
 
 	//ExtList and ExtListType are used to narrow down the files by their extensions.
-	//Make sure to include the preceeding ".".
+	//Make sure to include the preceding ".".
 	ExtListType ListType
 	ExtList     []string
 	extMap      map[string]struct{}
@@ -117,10 +118,11 @@ func (sw *Skywalker) init() error {
 	for i, g := range sw.List {
 		gl, er := glob.Compile(g)
 		if er != nil {
-			return err
+			return er
 		}
 		list[i] = gl
 	}
+	sw.list = list
 	return nil
 }
 
@@ -137,23 +139,65 @@ func (sw *Skywalker) walker(workerChan chan string) func(path string, info os.Fi
 			return err
 		}
 		if info.IsDir() {
-			if _, ok := sw.dirMap[path]; ok == (sw.DirListType == LTBlacklist) {
-				return filepath.SkipDir //Skip the Directory
+			if sw.skipDir(path) {
+				return filepath.SkipDir
 			}
 			if sw.FilesOnly {
-				return nil //Do not skip the Directory but do not queue it either
+				return nil
 			}
 		} else {
-			if _, ok := sw.extMap[filepath.Ext(info.Name())]; ok == (sw.ExtListType == LTBlacklist) {
-				return nil //Do not queue the file
+			if sw.skipFile(info.Name()) {
+				return nil
 			}
 		}
 		if sw.matchPath(path) == (sw.ListType == LTBlacklist) {
-			return nil //Do not queue the file
+			return nil
 		}
 		workerChan <- path
 		return nil
 	}
+}
+
+func (sw *Skywalker) skipDir(path string) bool {
+	switch sw.DirListType {
+	case LTBlacklist:
+		_, inList := sw.dirMap[path]
+		if inList {
+			return true
+		}
+	case LTWhitelist:
+		if path == sw.Root {
+			return false
+		}
+		path = strings.Replace(path, sw.Root, "", 1)
+		directories := strings.Split(path, string(filepath.Separator))
+		inList := false
+		for _, dir := range directories {
+			if _, ok := sw.dirMap[filepath.Join(sw.Root, dir)]; ok {
+				inList = true
+				break
+			}
+		}
+		if !inList {
+			return true
+		}
+	}
+	return false
+}
+
+func (sw *Skywalker) skipFile(name string) bool {
+	_, inList := sw.extMap[filepath.Ext(name)]
+	switch sw.ExtListType {
+	case LTBlacklist:
+		if inList {
+			return true
+		}
+	case LTWhitelist:
+		if !inList {
+			return true
+		}
+	}
+	return false
 }
 
 func (sw *Skywalker) matchPath(path string) bool {
