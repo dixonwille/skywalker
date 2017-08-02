@@ -29,7 +29,6 @@ func ExampleSkywalker() {
 	defer teardownData()
 	standupData()
 
-	//Find ExampleWorker in the source code of skywalkerExample_test.go
 	ew := new(ExampleWorker)
 	ew.Mutex = new(sync.Mutex)
 
