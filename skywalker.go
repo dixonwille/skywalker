@@ -51,7 +51,7 @@ type Skywalker struct {
 	//Will skip the appropriate directories and their files/subfolders.
 	DirListType ListType
 	DirList     []string
-	dirMap      map[string]struct{}
+	dirMap      map[string]bool
 
 	//NumWorkers are how many workers are listening to the queue to do the work.
 	NumWorkers int
@@ -104,9 +104,16 @@ func (sw *Skywalker) init() error {
 		return err
 	}
 	sw.Root = root
-	dirMap := make(map[string]struct{}, len(sw.DirList))
+	dirMap := make(map[string]bool, len(sw.DirList))
 	for _, dir := range sw.DirList {
-		dirMap[filepath.Join(root, dir)] = struct{}{}
+		if sw.DirListType == LTWhitelist {
+			dirs := strings.Split(cleanDir(dir), string(filepath.Separator))
+			for i := len(dirs); i > 0; i-- {
+				dirMap[filepath.Join(root, filepath.Join(dirs[:i]...))] = i == len(dirs)
+			}
+		} else {
+			dirMap[filepath.Join(root, cleanDir(dir))] = true
+		}
 	}
 	sw.dirMap = dirMap
 	extMap := make(map[string]struct{}, len(sw.ExtList))
@@ -139,8 +146,8 @@ func (sw *Skywalker) walker(workerChan chan string) func(path string, info os.Fi
 			return err
 		}
 		if info.IsDir() {
-			if sw.skipDir(path) {
-				return filepath.SkipDir
+			if doSomething, err := sw.skipDir(path); doSomething {
+				return err
 			}
 			if sw.FilesOnly {
 				return nil
@@ -158,31 +165,31 @@ func (sw *Skywalker) walker(workerChan chan string) func(path string, info os.Fi
 	}
 }
 
-func (sw *Skywalker) skipDir(path string) bool {
+func (sw *Skywalker) skipDir(path string) (bool, error) {
 	switch sw.DirListType {
 	case LTBlacklist:
 		_, inList := sw.dirMap[path]
 		if inList {
-			return true
+			return true, filepath.SkipDir
 		}
 	case LTWhitelist:
 		if path == sw.Root {
-			return false
+			return false, nil
 		}
-		path = strings.Replace(path, sw.Root, "", 1)
-		directories := strings.Split(path, string(filepath.Separator))
-		inList := false
-		for _, dir := range directories {
-			if _, ok := sw.dirMap[filepath.Join(sw.Root, dir)]; ok {
-				inList = true
-				break
+		dirs := strings.Split(cleanDir(strings.Replace(path, sw.Root, "", 1)), string(filepath.Separator))
+		for i := 1; i < len(dirs)+1; i++ {
+			try := filepath.Join(sw.Root, filepath.Join(dirs[:i]...))
+			root, found := sw.dirMap[try]
+			if found && root {
+				return false, nil // if it is the root no need to continue. Just use it
+			}
+			if !found {
+				return true, filepath.SkipDir // if it was not found at all ignore. the order of the search is important
 			}
 		}
-		if !inList {
-			return true
-		}
+		return true, nil // if it was found but not the root and was the last iteration
 	}
-	return false
+	return false, nil
 }
 
 func (sw *Skywalker) skipFile(name string) bool {
@@ -207,4 +214,8 @@ func (sw *Skywalker) matchPath(path string) bool {
 		}
 	}
 	return false
+}
+
+func cleanDir(dir string) string {
+	return strings.Trim(dir, "/")
 }
