@@ -20,7 +20,7 @@ import (
 var (
 	root       = "testingFolder"
 	benchRoot  = "benchmarking"
-	subFolders = []string{"the", "subfolder", "sub/folder/subfolder"}
+	subFolders = []string{"the", "subfolder", "sub", "sub/folder/subfolder"}
 	subFiles   = []string{"just.txt", "a.log", "few.pdf", "files"}
 )
 
