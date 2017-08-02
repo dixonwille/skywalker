@@ -1,6 +1,6 @@
 language: go
 go:
-- tip
+- stable
 before_install:
 - go get -t -v ./...
 script:
