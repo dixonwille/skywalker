@@ -153,7 +153,7 @@ var (
 			filepath.Join(root, "the/just.txt"),
 			filepath.Join(root, "sub/just.txt"),
 		}},
-		{"BlackList Glob", skywalker.LTBlacklist, []string{"**/*.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, false, false, []string{
+		{"BlackList Glob", skywalker.LTBlacklist, []string{"**.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, false, false, []string{
 			root,
 			filepath.Join(root, "subfolder"),
 			filepath.Join(root, "the"),
@@ -173,7 +173,7 @@ var (
 			filepath.Join(root, "sub/a.log"),
 			filepath.Join(root, "sub/files"),
 		}},
-		{"BlackList Glob FilesOnly", skywalker.LTBlacklist, []string{"**/*.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
+		{"BlackList Glob FilesOnly", skywalker.LTBlacklist, []string{"**.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
 			filepath.Join(root, "sub/folder/subfolder/just.txt"),
 			filepath.Join(root, "sub/folder/subfolder/a.log"),
 			filepath.Join(root, "sub/folder/subfolder/files"),
@@ -187,13 +187,13 @@ var (
 			filepath.Join(root, "sub/a.log"),
 			filepath.Join(root, "sub/files"),
 		}},
-		{"WhiteList Glob", skywalker.LTWhitelist, []string{"**/*.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, false, false, []string{
+		{"WhiteList Glob", skywalker.LTWhitelist, []string{"**.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, false, false, []string{
 			filepath.Join(root, "subfolder/few.pdf"),
 			filepath.Join(root, "the/few.pdf"),
 			filepath.Join(root, "sub/folder/subfolder/few.pdf"),
 			filepath.Join(root, "sub/few.pdf"),
 		}},
-		{"WhiteList Glob FilesOnly", skywalker.LTWhitelist, []string{"**/*.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
+		{"WhiteList Glob FilesOnly", skywalker.LTWhitelist, []string{"**.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
 			filepath.Join(root, "subfolder/few.pdf"),
 			filepath.Join(root, "the/few.pdf"),
 			filepath.Join(root, "sub/folder/subfolder/few.pdf"),

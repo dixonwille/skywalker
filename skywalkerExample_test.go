@@ -47,7 +47,9 @@ func ExampleSkywalker() {
 	}
 	sort.Sort(sort.StringSlice(ew.found))
 	for _, f := range ew.found {
-		fmt.Println(strings.Replace(f, sw.Root, "", 1))
+		show := strings.Replace(f, sw.Root, "", 1)
+		show = strings.Replace(show, "\\", "/", -1)
+		fmt.Println(show)
 	}
 	// Output:
 	// /subfolder/few.pdf

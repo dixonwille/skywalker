@@ -123,7 +123,7 @@ func (sw *Skywalker) init() error {
 	sw.extMap = extMap
 	list := make([]glob.Glob, len(sw.List))
 	for i, g := range sw.List {
-		gl, er := glob.Compile(g)
+		gl, er := glob.Compile(filepath.Clean(g), filepath.Separator)
 		if er != nil {
 			return er
 		}
