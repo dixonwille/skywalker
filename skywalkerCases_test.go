@@ -187,6 +187,20 @@ var (
 			filepath.Join(root, "sub/a.log"),
 			filepath.Join(root, "sub/files"),
 		}},
+		{"BlackList Glob FilesOnly Alt", skywalker.LTBlacklist, []string{"**/*.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
+			filepath.Join(root, "sub/folder/subfolder/just.txt"),
+			filepath.Join(root, "sub/folder/subfolder/a.log"),
+			filepath.Join(root, "sub/folder/subfolder/files"),
+			filepath.Join(root, "subfolder/just.txt"),
+			filepath.Join(root, "subfolder/a.log"),
+			filepath.Join(root, "subfolder/files"),
+			filepath.Join(root, "the/just.txt"),
+			filepath.Join(root, "the/a.log"),
+			filepath.Join(root, "the/files"),
+			filepath.Join(root, "sub/just.txt"),
+			filepath.Join(root, "sub/a.log"),
+			filepath.Join(root, "sub/files"),
+		}},
 		{"WhiteList Glob", skywalker.LTWhitelist, []string{"**.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, false, false, []string{
 			filepath.Join(root, "subfolder/few.pdf"),
 			filepath.Join(root, "the/few.pdf"),
@@ -194,6 +208,12 @@ var (
 			filepath.Join(root, "sub/few.pdf"),
 		}},
 		{"WhiteList Glob FilesOnly", skywalker.LTWhitelist, []string{"**.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
+			filepath.Join(root, "subfolder/few.pdf"),
+			filepath.Join(root, "the/few.pdf"),
+			filepath.Join(root, "sub/folder/subfolder/few.pdf"),
+			filepath.Join(root, "sub/few.pdf"),
+		}},
+		{"WhiteList Glob FilesOnly Alt", skywalker.LTWhitelist, []string{"**/*.pdf"}, skywalker.LTBlacklist, nil, skywalker.LTBlacklist, nil, true, false, []string{
 			filepath.Join(root, "subfolder/few.pdf"),
 			filepath.Join(root, "the/few.pdf"),
 			filepath.Join(root, "sub/folder/subfolder/few.pdf"),

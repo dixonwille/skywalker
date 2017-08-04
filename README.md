@@ -11,6 +11,8 @@ Skywalker is a package to allow one to concurrently go through a filesystem with
 - Filter by Extension
 - Glob Filtering (provided by [gobwas/glob](https://github.com/gobwas/glob))
 
+> For matching to work properly across platforms. Please use `/`. In [gobwas/glob](https://github.com/gobwas/glob) the `\` is an escape character (so you can escape `*`, `?`, etc...) making it difficult to know if you want to escape a character or go into directory.
+
 ## Example
 
 ```go

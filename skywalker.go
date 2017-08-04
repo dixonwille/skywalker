@@ -8,6 +8,7 @@ package skywalker
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -126,7 +127,7 @@ func (sw *Skywalker) init() error {
 	sw.extMap = extMap
 	list := make([]glob.Glob, len(sw.List))
 	for i, g := range sw.List {
-		gl, er := glob.Compile(filepath.Clean(g), filepath.Separator)
+		gl, er := glob.Compile(cleanGlob(g), filepath.Separator)
 		if er != nil {
 			return er
 		}
@@ -218,6 +219,7 @@ func (sw *Skywalker) skipFile(path string) bool {
 }
 
 func (sw *Skywalker) matchPath(path string) bool {
+	path = strings.Replace(path, sw.Root, "", 1)
 	for _, gl := range sw.list {
 		if match := gl.Match(path); match {
 			return true
@@ -228,6 +230,13 @@ func (sw *Skywalker) matchPath(path string) bool {
 
 func cleanDir(dir string) string {
 	return filepath.Clean(dir)
+}
+
+func cleanGlob(gl string) string {
+	if runtime.GOOS == "windows" {
+		return strings.Replace(gl, `/`, `\\`, -1) //must escape the backslash for windows comparison
+	}
+	return gl
 }
 
 func splitPath(path string) []string {
