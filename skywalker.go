@@ -107,7 +107,7 @@ func (sw *Skywalker) init() error {
 	dirMap := make(map[string]bool, len(sw.DirList))
 	for _, dir := range sw.DirList {
 		if sw.DirListType == LTWhitelist {
-			dirs := strings.Split(cleanDir(dir), string(filepath.Separator))
+			dirs := splitPath(dir)
 			for i := len(dirs); i > 0; i-- {
 				dirMap[filepath.Join(root, filepath.Join(dirs[:i]...))] = i == len(dirs)
 			}
@@ -179,7 +179,7 @@ func (sw *Skywalker) skipDir(path string) (bool, error) {
 }
 
 func (sw *Skywalker) whiteListDir(path string) (bool, error) {
-	dirs := strings.Split(cleanDir(strings.Replace(path, sw.Root, "", 1)), string(filepath.Separator))
+	dirs := splitPath(strings.Replace(path, sw.Root, "", 1))
 	for i := 1; i < len(dirs)+1; i++ {
 		try := filepath.Join(sw.Root, filepath.Join(dirs[:i]...))
 		root, found := sw.dirMap[try]
@@ -224,5 +224,9 @@ func (sw *Skywalker) matchPath(path string) bool {
 }
 
 func cleanDir(dir string) string {
-	return strings.Trim(dir, "/")
+	return filepath.Clean(dir)
+}
+
+func splitPath(path string) []string {
+	return strings.Split(strings.Trim(cleanDir(path), string(filepath.Separator)), string(filepath.Separator))
 }
