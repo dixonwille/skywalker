@@ -141,10 +141,7 @@ func (sw *Skywalker) worker(workerWG *sync.WaitGroup, workerChan chan string) {
 }
 
 func (sw *Skywalker) walker(workerChan chan string) func(path string, info os.FileInfo, err error) error {
-	return func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
+	return func(path string, info os.FileInfo, _ error) error {
 		if info.IsDir() {
 			if doSomething, err := sw.skipDir(path); doSomething {
 				return err
