@@ -86,6 +86,9 @@ func (sw *Skywalker) Walk() error {
 	if err := sw.init(); err != nil {
 		return err
 	}
+	if _, err := os.Stat(sw.Root); err != nil {
+		return err
+	}
 	workerChan := make(chan string, sw.QueueSize)
 	workerWG := new(sync.WaitGroup)
 	workerWG.Add(sw.NumWorkers)
