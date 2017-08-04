@@ -1,0 +1,17 @@
+version: 0.0.1_{build}
+platform: x64
+clone_folder: c:\gopath\src\github.com\dixonwille\skywalker
+environment:
+  GOPATH: c:\gopath
+install:
+- echo %PATH%
+- echo %GOPATH%
+- set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+- go version
+- go env
+- go get -t -v ./...
+- cinst codecov
+build_script:
+- go test -v -race -covermode=atomic -coverprofile=coverage.txt
+on_success:
+- codecov -f coverage.txt
